@@ -1,0 +1,14 @@
+[package]
+name = "rust-azure-app-config"
+version = "0.1.0"
+authors = ["clanderas"]
+edition = "2018"
+
+[dependencies]
+surf = "1.0.2"
+http = "0.1.18"
+chrono = "0.4.9"
+sha2 = "0.8.0"
+hmac = "0.7.1"
+base64 = "0.10.1"
+futures-preview = { version = "=0.3.0-alpha.18", features = ["async-await", "nightly","compat"] }
