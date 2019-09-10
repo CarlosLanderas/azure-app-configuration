@@ -9,6 +9,7 @@ use url::Url;
 
 type HmacSha256 = Hmac<Sha256>;
 
+
 const signedHeaders: &str = "date;host;x-ms-content-sha256";
 
 pub(crate) async fn create_signed_request<S: Into<String>>(
@@ -33,11 +34,11 @@ pub(crate) async fn create_signed_request<S: Into<String>>(
     hasher.input(&body.value());
     let hashed_content = hasher.result();
 
-    let content_hash = base64::encode(hashed_content.as_slice());
+    let content_hash = base64::encode(&hashed_content);
 
     let to_sign = format!("{}\n{}\n{};{};{}", verb, path, utc, host, content_hash);
 
-    println!("{}", to_sign);
+    println!("to_sign: {}", to_sign);
 
     let mut mac = HmacSha256::new_varkey(&secret).expect("HMAC can take key of any size");
 
@@ -59,14 +60,14 @@ pub(crate) async fn create_signed_request<S: Into<String>>(
         signedHeaders,
         encoded_signature
     );
-    h.insert("Content-Type", "application/vnd.microsoft.appconfig.kv+json");
+
     h.insert("Authorization", auth_value);
     h.insert("host", url.host().unwrap().to_string());
-
     println!("Date: {}",h.get("Date").unwrap());
     println!("x-ms-content-sha256: {}",h.get("x-ms-content-sha256").unwrap());
     println!("Authorization: {}",h .get("Authorization").unwrap());
-    println!("Content-Length: {}", body.value().len());
+
+    request = request.body_bytes(body.value());
 
     Ok(request)
 }

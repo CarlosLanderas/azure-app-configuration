@@ -37,7 +37,7 @@ pub struct KeyValue {
     pub value: String,
     #[serde(skip_serializing)]
 
-    pub content_type: String,
+    pub content_type: Option<String>,
     #[serde(skip_serializing)]
 
     pub last_modified: String,

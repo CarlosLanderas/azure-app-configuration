@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 surf = "1.0.2"
 sha2 = "0.8.0"
+mime = "0.3.14"
 http = "0.1.18"
 hmac = "0.7.1"
 base64 = "0.10.1"

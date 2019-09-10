@@ -13,6 +13,8 @@ use std::str::FromStr;
 use surf::middleware::HttpClient;
 use url::Url;
 use std::collections::HashMap;
+use mime::Mime;
+
 
 pub struct AzureAppConfigClient {
     access_key: String,
@@ -61,7 +63,7 @@ impl AzureAppConfigClient {
 
         let mut k = KeyValue::default();
         k.value = value.into();
-        k.content_type = content_type.unwrap_or(String::new());
+        k.content_type = Some(content_type.unwrap_or(String::new()));
 
        if let Some(tg) = tags {
            for (ky, v) in tg {
@@ -113,14 +115,19 @@ impl AzureAppConfigClient {
         method: Method,
         body: Body,
     ) -> Result<T, Exception> {
-        let req = create_signed_request(
+        let mut req = create_signed_request(
             self.access_key.clone(),
             self.secret.clone(),
             url,
             body,
-            method,
+            method.clone(),
         )
         .await?;
+
+
+        if method != Method::GET {
+            req = req.set_mime(Mime::from_str("application/vnd.microsoft.appconfig.kv+json").unwrap());
+        }
 
         let mut result = req.await?;
         let json = result.body_string().await?;
