@@ -11,4 +11,7 @@ chrono = "0.4.9"
 sha2 = "0.8.0"
 hmac = "0.7.1"
 base64 = "0.10.1"
-futures-preview = { version = "=0.3.0-alpha.18", features = ["async-await", "nightly","compat"] }
+url = "2.1.0"
+async-std = "0.99.4"
+futures-preview = { version = "0.3.0-alpha.18", features = ["compat", "io-compat"] }
+httpdate = "0.3.2"
