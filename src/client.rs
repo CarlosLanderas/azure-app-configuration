@@ -1,5 +1,5 @@
 use crate::endpoints::{EndpointUrl, Endpoints};
-use crate::model::{KeyValue, KeyValues};
+use crate::model::{KeyValue, KeyValues, Keys};
 use crate::request_sign::create_signed_request;
 use crate::requests::KeyValueRequest;
 use crate::Exception;
@@ -28,17 +28,23 @@ impl AzureAppConfigClient {
         }
     }
 
-    pub async fn get_all_key_values(&self) -> Result<KeyValues, Exception> {
+    pub async fn list_keys(&self) -> Result<Keys, Exception> {
+        let url = format!("{}?label=*", self.endpoints.get_uri(EndpointUrl::Keys)).parse::<Url>()?;
+        Ok(self.get_request(url, Body::empty()).await?)
+    }
+
+    pub async fn list_key_values(&self) -> Result<KeyValues, Exception> {
         let url = format!("{}?label=*", self.endpoints.get_uri(EndpointUrl::KeyValues)).parse::<Url>()?;
 
         Ok(self.get_request(url, Body::empty()).await?)
     }
 
-    pub async fn get_key_values<S: Into<String>>(
+    pub async fn get_key_value<S: Into<String>>(
         &self,
         key: S,
         label: Option<S>,
     ) -> Result<KeyValue, Exception> {
+
         let label_content = match label {
             Some(v) => v.into(),
             None => String::new(),

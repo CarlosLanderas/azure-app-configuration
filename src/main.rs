@@ -13,7 +13,7 @@ fn main() {
             base64::decode("wgf9BDWeh/+Dtq8DmpsJSUpwrdgYLrXG8svE+VyM06w=").unwrap(),
         );
 
-        let a = az.get_all_key_values().await.unwrap();
+        let a = az.list_keys().await.unwrap();
         println!("{:?}", a);
 //        let result = az
 //            .get_key_values("HealthChecksUI:EvaluationTimeOnSeconds", None)

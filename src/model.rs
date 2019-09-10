@@ -1,6 +1,16 @@
 use std::collections::HashMap;
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct Key {
+    name: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Keys {
+    items: Vec<Key>
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct KeyValues {
     items: Vec<KeyValue>,
 }
