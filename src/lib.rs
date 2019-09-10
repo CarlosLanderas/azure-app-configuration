@@ -7,4 +7,3 @@ pub mod client;
 mod endpoints;
 pub mod model;
 mod request_sign;
-pub mod requests;

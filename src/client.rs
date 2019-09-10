@@ -1,7 +1,6 @@
 use crate::endpoints::{EndpointUrl, Endpoints};
 use crate::model::{Key, KeyValue, KeyValues, Keys, Labels};
 use crate::request_sign::create_signed_request;
-use crate::requests::KeyValueRequest;
 use crate::Exception;
 use http::{Method, Response, StatusCode, Uri};
 use serde::de::DeserializeOwned;
