@@ -1,7 +1,7 @@
 use crate::client::Body;
 use crate::Exception;
 use hmac::{Hmac, Mac};
-use http::{Method, Response, Uri};
+use http::{Method};
 use httpdate::fmt_http_date;
 use sha2::{Digest, Sha256};
 use surf::middleware::HttpClient;
@@ -10,7 +10,7 @@ use url::Url;
 type HmacSha256 = Hmac<Sha256>;
 
 
-const signedHeaders: &str = "date;host;x-ms-content-sha256";
+const SIGNED_HEADERS: &str = "date;host;x-ms-content-sha256";
 
 pub(crate) async fn create_signed_request<S: Into<String>>(
     access_key: S,
@@ -23,7 +23,7 @@ pub(crate) async fn create_signed_request<S: Into<String>>(
 
     let path = match url.query() {
         Some(_) => format!("{}?{}", url.path(), url.query().unwrap()),
-        None => format!("{}", url.path()),
+        None => url.path().to_string(),
     };
 
     let verb = method.to_string().to_uppercase();
@@ -57,7 +57,7 @@ pub(crate) async fn create_signed_request<S: Into<String>>(
     let auth_value = format!(
         "HMAC-SHA256 Credential={}&SignedHeaders={}&Signature={}",
         access_key.into(),
-        signedHeaders,
+        SIGNED_HEADERS,
         encoded_signature
     );
 

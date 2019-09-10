@@ -1,19 +1,20 @@
 use crate::endpoints::{EndpointUrl, Endpoints};
-use crate::model::{Key, KeyValue, KeyValues, Keys, Labels};
+use crate::model::{KeyValue, KeyValues, Keys, Labels};
 use crate::request_sign::create_signed_request;
 use crate::Exception;
-use http::{Method, Response, StatusCode, Uri};
+use http::{Method};
 use serde::de::DeserializeOwned;
 use serde::export::fmt::Display;
-use serde::Deserialize;
+
 use std::error::Error;
 use std::fmt::Formatter;
 use std::str::FromStr;
-use surf::middleware::HttpClient;
+
 use url::Url;
 use std::collections::HashMap;
 use mime::Mime;
 
+const APP_CONFIG_MIME : &str = "application/vnd.microsoft.appconfig.kv+json";
 
 pub struct AzureAppConfigClient {
     access_key: String,
@@ -28,8 +29,8 @@ impl AzureAppConfigClient {
         secret: Vec<u8>,
     ) -> AzureAppConfigClient {
         AzureAppConfigClient {
-            access_key: access_key.into(),
-            secret: secret.into(),
+            access_key : access_key.into(),
+            secret,
             endpoints: Endpoints::new(uri_endpoint.into()),
         }
     }
@@ -62,14 +63,14 @@ impl AzureAppConfigClient {
 
         let mut k = KeyValue::default();
         k.value = value.into();
-        k.content_type = Some(content_type.unwrap_or(String::new()));
+        k.content_type = Some(content_type.unwrap_or_default());
 
        if let Some(tg) = tags {
            for (ky, v) in tg {
                 k.tags.insert(ky, v);
            }
        }
-        let target_label  = label.unwrap_or(String::new()).to_string();
+        let target_label  = label.unwrap_or_default();
 
         let json = serde_json::to_string(&k)?;
         println!("{}", json);
@@ -125,7 +126,7 @@ impl AzureAppConfigClient {
 
 
         if method != Method::GET {
-            req = req.set_mime(Mime::from_str("application/vnd.microsoft.appconfig.kv+json").unwrap());
+            req = req.set_mime(Mime::from_str(APP_CONFIG_MIME).unwrap());
         }
 
         let mut result = req.await?;

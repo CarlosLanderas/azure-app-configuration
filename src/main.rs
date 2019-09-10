@@ -1,9 +1,8 @@
-use http::Method;
-use url::Url;
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
+
+
 use async_std::task;
 use rust_azure_app_config::client::AzureAppConfigClient;
-use std::str::FromStr;
+
 use std::collections::HashMap;
 
 fn main() {
