@@ -1,3 +1,4 @@
+use crate::client::Body;
 use crate::Exception;
 use hmac::{Hmac, Mac};
 use http::{Method, Response, Uri};
@@ -5,7 +6,6 @@ use httpdate::fmt_http_date;
 use sha2::{Digest, Sha256};
 use surf::middleware::HttpClient;
 use url::Url;
-use crate::client::Body;
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -18,19 +18,18 @@ pub(crate) async fn create_signed_request<S: Into<String>>(
     body: Body,
     method: Method,
 ) -> Result<surf::Request<impl HttpClient>, Exception> {
-
     let host = url.host().unwrap().to_string();
 
     let path = match url.query() {
         Some(_) => format!("{}?{}", url.path(), url.query().unwrap()),
-        None => format!("{}", url.path())
+        None => format!("{}", url.path()),
     };
-
 
     let verb = method.to_string().to_uppercase();
     let utc = fmt_http_date(std::time::SystemTime::now());
 
     let mut hasher = Sha256::new();
+
     hasher.input(&body.value());
     let hashed_content = hasher.result();
 
@@ -60,9 +59,14 @@ pub(crate) async fn create_signed_request<S: Into<String>>(
         signedHeaders,
         encoded_signature
     );
-
+    h.insert("Content-Type", "application/vnd.microsoft.appconfig.kv+json");
     h.insert("Authorization", auth_value);
     h.insert("host", url.host().unwrap().to_string());
+
+    println!("Date: {}",h.get("Date").unwrap());
+    println!("x-ms-content-sha256: {}",h.get("x-ms-content-sha256").unwrap());
+    println!("Authorization: {}",h .get("Authorization").unwrap());
+    println!("Content-Length: {}", body.value().len());
 
     Ok(request)
 }

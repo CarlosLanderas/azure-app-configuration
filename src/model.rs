@@ -7,7 +7,7 @@ pub struct Key {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Keys {
-    items: Vec<Key>
+    items: Vec<Key>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -17,23 +17,32 @@ pub struct Label {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Labels {
-    items: Vec<Label>
+    items: Vec<Label>,
 }
-
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct KeyValues {
     items: Vec<KeyValue>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct KeyValue {
+    #[serde(skip_serializing)]
     pub etag: String,
+    #[serde(skip_serializing)]
     pub key: String,
+    #[serde(skip_serializing)]
+
     pub label: Option<String>,
     pub value: String,
+    #[serde(skip_serializing)]
+
     pub content_type: String,
+    #[serde(skip_serializing)]
+
     pub last_modified: String,
+    #[serde(skip_serializing)]
+
     pub locked: bool,
     pub tags: HashMap<String, String>,
 }
