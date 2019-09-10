@@ -14,12 +14,19 @@ const signedHeaders: &str = "date;host;x-ms-content-sha256";
 pub(crate) async fn create_signed_request<S: Into<String>>(
     access_key: S,
     secret: Vec<u8>,
-    url: Url,
+    url: &Url,
     body: Body,
     method: Method,
 ) -> Result<surf::Request<impl HttpClient>, Exception> {
+
     let host = url.host().unwrap().to_string();
-    let path = format!("{}?{}", url.path(), url.query().unwrap());
+
+    let path = match url.query() {
+        Some(_) => format!("{}?{}", url.path(), url.query().unwrap()),
+        None => format!("{}", url.path())
+    };
+
+
     let verb = method.to_string().to_uppercase();
     let utc = fmt_http_date(std::time::SystemTime::now());
 

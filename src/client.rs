@@ -3,11 +3,15 @@ use crate::model::{KeyValue, KeyValues, Keys};
 use crate::request_sign::create_signed_request;
 use crate::requests::KeyValueRequest;
 use crate::Exception;
-use http::{Method, Response, Uri};
+use http::{Method, Response, Uri, StatusCode};
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use surf::middleware::HttpClient;
 use url::Url;
+use std::str::FromStr;
+use std::error::Error;
+use serde::export::fmt::Display;
+use std::fmt::Formatter;
 
 pub struct AzureAppConfigClient {
     access_key: String,
@@ -29,12 +33,12 @@ impl AzureAppConfigClient {
     }
 
     pub async fn list_keys(&self) -> Result<Keys, Exception> {
-        let url = format!("{}?label=*", self.endpoints.get_uri(EndpointUrl::Keys)).parse::<Url>()?;
+        let url = &format!("{}", self.endpoints.get_uri(EndpointUrl::Keys)).parse::<Url>()?;
         Ok(self.get_request(url, Body::empty()).await?)
     }
 
     pub async fn list_key_values(&self) -> Result<KeyValues, Exception> {
-        let url = format!("{}?label=*", self.endpoints.get_uri(EndpointUrl::KeyValues)).parse::<Url>()?;
+        let url = &format!("{}?label=*", self.endpoints.get_uri(EndpointUrl::KeyValues)).parse::<Url>()?;
 
         Ok(self.get_request(url, Body::empty()).await?)
     }
@@ -50,7 +54,7 @@ impl AzureAppConfigClient {
             None => String::new(),
         };
 
-        let url = format!(
+        let url = &format!(
             "{host}/{key}?label={label}",
             host = self.endpoints.get_uri(EndpointUrl::KeyValues),
             key = key.into(),
@@ -61,7 +65,7 @@ impl AzureAppConfigClient {
         Ok(self.get_request::<KeyValue>(url, Body::empty()).await?)
     }
 
-    async fn get_request<T: DeserializeOwned>(&self, url: Url, body : Body) -> Result<T, Exception> {
+    async fn get_request<T: DeserializeOwned>(&self, url: &Url, body : Body) -> Result<T, Exception> {
 
         let req = create_signed_request(
             self.access_key.clone(),
@@ -75,6 +79,10 @@ impl AzureAppConfigClient {
         let mut result = req.await?;
         let json = result.body_string().await?;
 
+        match result.status() {
+            v if v != http::StatusCode::OK => Err(HttpError::new(v.as_u16() as usize, url.as_str())),
+            _ => Ok(())
+        }?;
         Ok(serde_json::from_str::<T>(&json)?)
     }
 
@@ -82,6 +90,31 @@ impl AzureAppConfigClient {
         self.endpoints.base_endpoint()
     }
 }
+
+#[derive(Debug, Clone)]
+struct HttpError {
+    status : usize,
+    url: String,
+}
+
+impl HttpError {
+    pub fn new<S: Into<String>>(err : usize, url: S) -> Self {
+        HttpError {
+            status: err,
+            url: url.into(),
+        }
+    }
+}
+
+
+impl Error for HttpError {}
+
+impl Display for HttpError {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(f, "Http request error, code: {}, url: {}", self.status, self.url)
+    }
+}
+
 
 
 pub(crate) struct Body {
