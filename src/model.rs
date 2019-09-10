@@ -11,6 +11,17 @@ pub struct Keys {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct Label {
+    name: Option<String>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Labels {
+    items: Vec<Label>
+}
+
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct KeyValues {
     items: Vec<KeyValue>,
 }

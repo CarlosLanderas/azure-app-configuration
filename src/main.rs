@@ -13,12 +13,12 @@ fn main() {
             base64::decode("wgf9BDWeh/+Dtq8DmpsJSUpwrdgYLrXG8svE+VyM06w=").unwrap(),
         );
 
-//        let a = az.list_keys().await.unwrap();
-//        println!("{:?}", a);
-        let result = az
-            .get_key_value("HealthChecksUI:HealthChecks:0:Uri", Some("HealthChecksConfig"))
-            .await
-            .unwrap();
-        println!("{:?}", result);
+        let a = az.list_labels().await.unwrap();
+        println!("{:?}", a);
+//        let result = az
+//            .get_key_value("HealthChecksUI:HealthChecks:0:Uri", Some("HealthChecksConfig"))
+//            .await
+//            .unwrap();
+//        println!("{:?}", result);
     })
 }

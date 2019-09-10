@@ -3,9 +3,11 @@ use url::Url;
 pub(crate) enum EndpointUrl {
     KeyValues,
     Keys,
+    Labels,
 }
 pub(crate) const KEY_VALUE_ENDPOINT: &str = "kv";
 pub(crate) const KEYS_ENDPOINT: &str = "keys";
+pub(crate) const LABELS_ENDPOINT: &str = "labels";
 
 pub(crate) struct Endpoints {
     base_endpoint: String,
@@ -26,6 +28,7 @@ impl Endpoints {
         let e = match endpoint {
             EndpointUrl::KeyValues => format!("{}/{}", self.base_endpoint, KEY_VALUE_ENDPOINT),
             EndpointUrl::Keys => format!("{}/{}", self.base_endpoint, KEYS_ENDPOINT),
+            EndpointUrl::Labels => format!("{}/{}", self.base_endpoint, LABELS_ENDPOINT),
         };
 
         e.parse::<Url>().unwrap()
