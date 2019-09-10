@@ -17,3 +17,7 @@ httpdate = "0.3.2"
 serde = "1.0.100"
 serde_derive = "1.0.100"
 serde_json = "1.0.40"
+
+[[example]]
+name = "list-key-values"
+path = "examples/list_key_values.rs"

@@ -1,5 +1,5 @@
 use crate::endpoints::{EndpointUrl, Endpoints};
-use crate::model::{KeyValue, KeyValues, Keys, Labels};
+use crate::model::{KeyValue, KeyValues, Keys, Labels, SearchLabel};
 use crate::request_sign::create_signed_request;
 use crate::Exception;
 use http::Method;
@@ -23,14 +23,10 @@ pub struct AzureAppConfigClient {
 }
 
 impl AzureAppConfigClient {
-    pub fn new<S: Into<String>>(
-        uri_endpoint: S,
-        access_key: S,
-        secret: Vec<u8>,
-    ) -> AzureAppConfigClient {
+    pub fn new<S: Into<String>>(uri_endpoint: S, access_key: S, secret: S) -> AzureAppConfigClient {
         AzureAppConfigClient {
             access_key: access_key.into(),
-            secret,
+            secret: base64::decode(&secret.into()).expect("Could not decode secret key"),
             endpoints: Endpoints::new(uri_endpoint.into()),
         }
     }
@@ -45,31 +41,53 @@ impl AzureAppConfigClient {
         Ok(self.send_request(url, Method::GET, Body::empty()).await?)
     }
 
-    pub async fn list_key_values(&self) -> Result<KeyValues, Exception> {
-        let url = &format!("{}?label=*", self.endpoints.get_uri(EndpointUrl::KeyValues))
-            .parse::<Url>()?;
+    pub async fn list_key_values<'a>(
+        &self,
+        label: SearchLabel<'a>,
+    ) -> Result<KeyValues, Exception> {
+
+        let target_label = match label {
+            SearchLabel::For(l) => l,
+            SearchLabel::All => "*"
+        };
+
+        let url = &format!(
+            "{}?label={}",
+            self.endpoints.get_uri(EndpointUrl::KeyValues),
+            target_label
+        )
+        .parse::<Url>()?;
 
         Ok(self.send_request(url, Method::GET, Body::empty()).await?)
     }
 
-    pub async fn set_key<S: Into<String>>(
+    pub async fn set_key<'a, S: Into<String>>(
         &self,
         key: S,
         value: S,
-        label: Option<String>,
-        tags: Option<HashMap<String, String>>,
-        content_type: Option<String>,
+        label: Option<S>,
+        tags: Option<HashMap<S, S>>,
+        content_type: Option<S>,
     ) -> Result<KeyValue, Exception> {
         let mut k = KeyValue::default();
+
         k.value = value.into();
-        k.content_type = Some(content_type.unwrap_or_default());
+
+        k.content_type = match content_type {
+            Some(c) => Some(c.into()),
+            None => None
+        };
 
         if let Some(tg) = tags {
             for (ky, v) in tg {
-                k.tags.insert(ky, v);
+                k.tags.insert(ky.into(), v.into());
             }
         }
-        let target_label = label.unwrap_or_default();
+
+        let target_label = match label {
+            Some(l) => l.into(),
+            None => String::new(),
+        };
 
         let json = serde_json::to_string(&k)?;
         println!("{}", json);

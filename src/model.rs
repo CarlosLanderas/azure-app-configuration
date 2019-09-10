@@ -1,5 +1,10 @@
 use std::collections::HashMap;
 
+pub enum SearchLabel<'a> {
+    All,
+    For(&'a str)
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct Key {
     name: String,
