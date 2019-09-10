@@ -8,11 +8,17 @@ use std::str::FromStr;
 fn main() {
     task::block_on(async {
         let az = AzureAppConfigClient::new(
-            "https://lande-app-configuration.azconfig.io/kv?fields=*",
+            "https://lande-app-configuration.azconfig.io",
             "0-l9-s0:Z6DMwn2DoiKxgVsTIm7h",
             base64::decode("wgf9BDWeh/+Dtq8DmpsJSUpwrdgYLrXG8svE+VyM06w=").unwrap(),
         );
-        let r = az.get_keys().await;
 
+        let a = az.get_all_key_values().await.unwrap();
+        println!("{:?}", a);
+//        let result = az
+//            .get_key_values("HealthChecksUI:EvaluationTimeOnSeconds", None)
+//            .await
+//            .unwrap();
+//        println!("{:?}", result);
     })
 }

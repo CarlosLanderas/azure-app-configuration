@@ -6,12 +6,13 @@ edition = "2018"
 
 [dependencies]
 surf = "1.0.2"
-http = "0.1.18"
-chrono = "0.4.9"
 sha2 = "0.8.0"
+http = "0.1.18"
 hmac = "0.7.1"
 base64 = "0.10.1"
 url = "2.1.0"
 async-std = "0.99.4"
-futures-preview = { version = "0.3.0-alpha.18", features = ["compat", "io-compat"] }
 httpdate = "0.3.2"
+serde = "1.0.100"
+serde_derive = "1.0.100"
+serde_json = "1.0.40"
