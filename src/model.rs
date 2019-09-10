@@ -32,17 +32,13 @@ pub struct KeyValue {
     #[serde(skip_serializing)]
     pub key: String,
     #[serde(skip_serializing)]
-
     pub label: Option<String>,
     pub value: String,
     #[serde(skip_serializing)]
-
     pub content_type: Option<String>,
     #[serde(skip_serializing)]
-
     pub last_modified: String,
     #[serde(skip_serializing)]
-
     pub locked: bool,
     pub tags: HashMap<String, String>,
 }

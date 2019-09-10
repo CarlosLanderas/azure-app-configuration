@@ -1,7 +1,7 @@
 use crate::client::Body;
 use crate::Exception;
 use hmac::{Hmac, Mac};
-use http::{Method};
+use http::Method;
 use httpdate::fmt_http_date;
 use sha2::{Digest, Sha256};
 use surf::middleware::HttpClient;
@@ -9,8 +9,23 @@ use url::Url;
 
 type HmacSha256 = Hmac<Sha256>;
 
-
 const SIGNED_HEADERS: &str = "date;host;x-ms-content-sha256";
+
+fn get_content_hash_base64(body: &Body) -> String {
+    let mut hasher = Sha256::new();
+    hasher.input(body.value());
+
+    let hashed_content = hasher.result();
+    base64::encode(&hashed_content)
+}
+
+fn get_hmac(secret: Vec<u8>, to_sign: String) -> String {
+    let mut mac = HmacSha256::new_varkey(&secret).expect("HMAC can take key of any size");
+    mac.input(to_sign.as_bytes());
+
+    let result = mac.result().code();
+    base64::encode(&result)
+}
 
 pub(crate) async fn create_signed_request<S: Into<String>>(
     access_key: S,
@@ -29,29 +44,16 @@ pub(crate) async fn create_signed_request<S: Into<String>>(
     let verb = method.to_string().to_uppercase();
     let utc = fmt_http_date(std::time::SystemTime::now());
 
-    let mut hasher = Sha256::new();
-
-    hasher.input(&body.value());
-    let hashed_content = hasher.result();
-
-    let content_hash = base64::encode(&hashed_content);
+    let content_hash = get_content_hash_base64(&body);
 
     let to_sign = format!("{}\n{}\n{};{};{}", verb, path, utc, host, content_hash);
 
-    println!("to_sign: {}", to_sign);
-
-    let mut mac = HmacSha256::new_varkey(&secret).expect("HMAC can take key of any size");
-
-    mac.input(to_sign.as_bytes());
-
-    let result = mac.result().code();
-    let encoded_signature = base64::encode(&result);
+    let encoded_signature = get_hmac(secret, to_sign);
 
     let mut request = surf::Request::new(method, url.clone());
     let mut h = request.headers();
 
     h.insert("Date", utc);
-
     h.insert("x-ms-content-sha256", content_hash);
 
     let auth_value = format!(
@@ -63,9 +65,6 @@ pub(crate) async fn create_signed_request<S: Into<String>>(
 
     h.insert("Authorization", auth_value);
     h.insert("host", url.host().unwrap().to_string());
-    println!("Date: {}",h.get("Date").unwrap());
-    println!("x-ms-content-sha256: {}",h.get("x-ms-content-sha256").unwrap());
-    println!("Authorization: {}",h .get("Authorization").unwrap());
 
     request = request.body_bytes(body.value());
 

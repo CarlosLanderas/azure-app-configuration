@@ -2,7 +2,7 @@ use crate::endpoints::{EndpointUrl, Endpoints};
 use crate::model::{KeyValue, KeyValues, Keys, Labels};
 use crate::request_sign::create_signed_request;
 use crate::Exception;
-use http::{Method};
+use http::Method;
 use serde::de::DeserializeOwned;
 use serde::export::fmt::Display;
 
@@ -10,11 +10,11 @@ use std::error::Error;
 use std::fmt::Formatter;
 use std::str::FromStr;
 
-use url::Url;
-use std::collections::HashMap;
 use mime::Mime;
+use std::collections::HashMap;
+use url::Url;
 
-const APP_CONFIG_MIME : &str = "application/vnd.microsoft.appconfig.kv+json";
+const APP_CONFIG_MIME: &str = "application/vnd.microsoft.appconfig.kv+json";
 
 pub struct AzureAppConfigClient {
     access_key: String,
@@ -29,7 +29,7 @@ impl AzureAppConfigClient {
         secret: Vec<u8>,
     ) -> AzureAppConfigClient {
         AzureAppConfigClient {
-            access_key : access_key.into(),
+            access_key: access_key.into(),
             secret,
             endpoints: Endpoints::new(uri_endpoint.into()),
         }
@@ -57,20 +57,19 @@ impl AzureAppConfigClient {
         key: S,
         value: S,
         label: Option<String>,
-        tags: Option<HashMap<String,String>>,
+        tags: Option<HashMap<String, String>>,
         content_type: Option<String>,
-    ) -> Result<KeyValue, Exception>  {
-
+    ) -> Result<KeyValue, Exception> {
         let mut k = KeyValue::default();
         k.value = value.into();
         k.content_type = Some(content_type.unwrap_or_default());
 
-       if let Some(tg) = tags {
-           for (ky, v) in tg {
+        if let Some(tg) = tags {
+            for (ky, v) in tg {
                 k.tags.insert(ky, v);
-           }
-       }
-        let target_label  = label.unwrap_or_default();
+            }
+        }
+        let target_label = label.unwrap_or_default();
 
         let json = serde_json::to_string(&k)?;
         println!("{}", json);
@@ -83,7 +82,9 @@ impl AzureAppConfigClient {
         )
         .parse::<Url>()?;
 
-        Ok(self.send_request(url, Method::PUT, Body::from(json.into_bytes())).await?)
+        Ok(self
+            .send_request(url, Method::PUT, Body::from(json.into_bytes()))
+            .await?)
     }
 
     pub async fn get_key_value<S: Into<String>>(
@@ -123,7 +124,6 @@ impl AzureAppConfigClient {
             method.clone(),
         )
         .await?;
-
 
         if method != Method::GET {
             req = req.set_mime(Mime::from_str(APP_CONFIG_MIME).unwrap());
