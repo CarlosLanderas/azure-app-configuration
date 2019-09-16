@@ -1,6 +1,7 @@
 use async_std::task;
 use azure_app_configuration::client::AzureAppConfigClient;
 
+use azure_app_configuration::search_label::SearchLabel;
 use std::collections::HashMap;
 
 fn main() {
@@ -26,7 +27,7 @@ fn main() {
         tags.insert("tag2", "tagvalue2");
 
         let r = az
-            .set_key("Bob", "DesdeRust!!!", None, Some(tags), None)
+            .set_key("Bob", "DesdeRust!!!", SearchLabel::All, Some(tags), None)
             .await;
 
         println!("{:?}", r);

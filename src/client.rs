@@ -1,7 +1,7 @@
 use crate::endpoints::{EndpointUrl, Endpoints};
 use crate::model::{KeyValue, KeyValues, Keys, Labels};
-use crate::search_label::SearchLabel;
 use crate::request_sign::create_signed_request;
+use crate::search_label::SearchLabel;
 use crate::Exception;
 use http::Method;
 use serde::de::DeserializeOwned;
@@ -46,7 +46,6 @@ impl AzureAppConfigClient {
         &self,
         label: SearchLabel<'a>,
     ) -> Result<KeyValues, Exception> {
-
         let url = &format!(
             "{}?label={}",
             self.endpoints.get_uri(EndpointUrl::KeyValues),
@@ -61,7 +60,7 @@ impl AzureAppConfigClient {
         &self,
         key: S,
         value: S,
-        label: Option<S>,
+        label: SearchLabel<'a>,
         tags: Option<HashMap<S, S>>,
         content_type: Option<S>,
     ) -> Result<KeyValue, Exception> {
@@ -80,11 +79,6 @@ impl AzureAppConfigClient {
             }
         }
 
-        let target_label = match label {
-            Some(l) => l.into(),
-            None => String::new(),
-        };
-
         let json = serde_json::to_string(&k)?;
         println!("{}", json);
 
@@ -92,7 +86,7 @@ impl AzureAppConfigClient {
             "{}/{key}?label={lbl}",
             self.endpoints.get_uri(EndpointUrl::KeyValues),
             key = key.into(),
-            lbl = target_label
+            lbl = label.to_string()
         )
         .parse::<Url>()?;
 
@@ -106,7 +100,6 @@ impl AzureAppConfigClient {
         key: S,
         label: SearchLabel<'a>,
     ) -> Result<KeyValue, Exception> {
-
         let url = &format!(
             "{host}/{key}?label={label}",
             host = self.endpoints.get_uri(EndpointUrl::KeyValues),

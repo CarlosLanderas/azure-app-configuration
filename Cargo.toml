@@ -24,3 +24,9 @@ path = "examples/list_key_values.rs"
 [[example]]
 name = "get-key-value"
 path = "examples/get_key_value.rs"
+[[example]]
+name = "set-key-value"
+path = "examples/set_key_value.rs"
+[[example]]
+name = "set-key-value-with-tags"
+path = "examples/set_key_value_with_tags.rs"
