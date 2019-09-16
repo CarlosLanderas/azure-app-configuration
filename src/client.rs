@@ -21,6 +21,22 @@ pub struct AzureAppConfigClient {
 }
 
 impl AzureAppConfigClient {
+    /// Creates a new instance of Azure App Configuration Client
+     /// # Arguments
+    ///
+    /// * `uri_endpoint` - Your Azure App Configuration service url
+    /// * `access_key` - Azure provided access_key
+    /// * `secret` - Azure provided secret key
+    /// 
+    /// # Examples
+    /// ```
+    /// use azure_app_configuration::client::AzureAppConfigClient;
+    ///
+    /// let client = AzureAppConfigClient::new(
+    ///     "https://yourendpoint.azconfig.io",
+    ///     "access_key",
+    ///     "secret");
+    /// ```
     pub fn new<S: Into<String>>(uri_endpoint: S, access_key: S, secret: S) -> AzureAppConfigClient {
         AzureAppConfigClient {
             access_key: access_key.into(),

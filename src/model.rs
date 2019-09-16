@@ -17,12 +17,12 @@ pub struct Label {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Labels {
-    items: Vec<Label>,
+    pub items: Vec<Label>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct KeyValues {
-    items: Vec<KeyValue>,
+    pub items: Vec<KeyValue>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]

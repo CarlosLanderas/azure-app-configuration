@@ -26,6 +26,9 @@ femme = "1.2.0"
 name = "list-key-values"
 path = "examples/list_key_values.rs"
 [[example]]
+name = "list-labels"
+path = "examples/list_labels.rs"
+[[example]]
 name = "get-key-value"
 path = "examples/get_key_value.rs"
 [[example]]
