@@ -12,14 +12,6 @@ fn main() {
             "wgf9BDWeh/+Dtq8DmpsJSUpwrdgYLrXG8svE+VyM06w=",
         );
 
-        //        let a = az.list_labels().await.unwrap();
-        //        println!("{:?}", a);
-        //        let result = az
-        //            .get_key_value("HealthChecksUI:HealthChecks:0:Uri", Some("HealthChecksConfig"))
-        //            .await
-        //            .unwrap();
-        //        println!("{:?}", result);
-
         let tag1 = String::from("tag1");
         let value1 = String::from("tag2");
         let mut tags = HashMap::new();

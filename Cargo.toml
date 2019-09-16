@@ -30,3 +30,6 @@ path = "examples/set_key_value.rs"
 [[example]]
 name = "set-key-value-with-tags"
 path = "examples/set_key_value_with_tags.rs"
+[[example]]
+name = "remove-key-value"
+path = "examples/remove_key_value.rs"

@@ -1,7 +1,6 @@
 use async_std::task;
 use azure_app_configuration::client::AzureAppConfigClient;
 use azure_app_configuration::search_label::SearchLabel;
-use std::collections::HashMap;
 
 fn main() {
     task::block_on(async {

@@ -8,7 +8,7 @@ pub enum SearchLabel<'a> {
 impl<'a> ToString for SearchLabel<'a> {
     fn to_string(&self) -> String {
         match self {
-            SearchLabel::All => String::from("*"),
+            SearchLabel::All => String::new(),
             SearchLabel::For(v) => v.to_string(),
         }
     }

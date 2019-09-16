@@ -1,14 +1,11 @@
 use crate::endpoints::{EndpointUrl, Endpoints};
+use crate::error::HttpError;
 use crate::model::{KeyValue, KeyValues, Keys, Labels};
 use crate::request_sign::create_signed_request;
 use crate::search_label::SearchLabel;
 use crate::Exception;
 use http::Method;
 use serde::de::DeserializeOwned;
-use serde::export::fmt::Display;
-
-use std::error::Error;
-use std::fmt::Formatter;
 use std::str::FromStr;
 
 use mime::Mime;
@@ -34,12 +31,12 @@ impl AzureAppConfigClient {
 
     pub async fn list_labels(&self) -> Result<Labels, Exception> {
         let url = &format!("{}", self.endpoints.get_uri(EndpointUrl::Labels)).parse::<Url>()?;
-        Ok(self.send_request(url, Method::GET, Body::empty()).await?)
+        Ok(self.send_json(url, Method::GET, Body::empty()).await?)
     }
 
     pub async fn list_keys(&self) -> Result<Keys, Exception> {
         let url = &format!("{}", self.endpoints.get_uri(EndpointUrl::Keys)).parse::<Url>()?;
-        Ok(self.send_request(url, Method::GET, Body::empty()).await?)
+        Ok(self.send_json(url, Method::GET, Body::empty()).await?)
     }
 
     pub async fn list_key_values<'a>(
@@ -53,7 +50,7 @@ impl AzureAppConfigClient {
         )
         .parse::<Url>()?;
 
-        Ok(self.send_request(url, Method::GET, Body::empty()).await?)
+        Ok(self.send_json(url, Method::GET, Body::empty()).await?)
     }
 
     pub async fn set_key<'a, S: Into<String>>(
@@ -80,7 +77,6 @@ impl AzureAppConfigClient {
         }
 
         let json = serde_json::to_string(&k)?;
-        println!("{}", json);
 
         let url = &format!(
             "{}/{key}?label={lbl}",
@@ -91,7 +87,7 @@ impl AzureAppConfigClient {
         .parse::<Url>()?;
 
         Ok(self
-            .send_request(url, Method::PUT, Body::from(json.into_bytes()))
+            .send_json(url, Method::PUT, Body::from(json.into_bytes()))
             .await?)
     }
 
@@ -109,16 +105,28 @@ impl AzureAppConfigClient {
         .parse::<Url>()?;
 
         Ok(self
-            .send_request::<KeyValue>(url, Method::GET, Body::empty())
+            .send_json::<KeyValue>(url, Method::GET, Body::empty())
             .await?)
     }
 
-    async fn send_request<T: DeserializeOwned>(
+    pub async fn remove_key_value<'a, S: Into<String>>(
+        &self,
+        key: S,
+        label: SearchLabel<'a>,
+    ) -> Result<(), Exception> {
+        let url = get_key_value_url(self, key, label)?;
+        self.send_request(&url, Method::DELETE, Body::empty())
+            .await?;
+
+        Ok(())
+    }
+
+    async fn send_request(
         &self,
         url: &Url,
         method: Method,
         body: Body,
-    ) -> Result<T, Exception> {
+    ) -> Result<String, Exception> {
         let mut req = create_signed_request(
             self.access_key.clone(),
             self.secret.clone(),
@@ -133,17 +141,21 @@ impl AzureAppConfigClient {
         }
 
         let mut result = req.await?;
-        let json = result.body_string().await?;
+        let content = result.body_string().await?;
 
         match result.status() {
-            v if v != http::StatusCode::OK => {
-                Err(HttpError::new(v.as_u16() as usize, url.as_str()))
-            }
-            _ => Ok(()),
-        }?;
-
-        println!("{}", json);
-        Ok(serde_json::from_str::<T>(&json)?)
+            v if !v.is_success() => Err(HttpError::new(v.as_u16() as usize, url.as_str()).into()),
+            _ => Ok(content),
+        }
+    }
+    async fn send_json<T: DeserializeOwned>(
+        &self,
+        url: &Url,
+        method: Method,
+        body: Body,
+    ) -> Result<T, Exception> {
+        let result = self.send_request(url, method, body).await?;
+        Ok(serde_json::from_str::<T>(&result)?)
     }
 
     pub fn endpoint_uri(&self) -> String {
@@ -151,31 +163,19 @@ impl AzureAppConfigClient {
     }
 }
 
-#[derive(Debug, Clone)]
-struct HttpError {
-    status: usize,
-    url: String,
-}
-
-impl HttpError {
-    pub fn new<S: Into<String>>(err: usize, url: S) -> Self {
-        HttpError {
-            status: err,
-            url: url.into(),
-        }
-    }
-}
-
-impl Error for HttpError {}
-
-impl Display for HttpError {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(
-            f,
-            "Http request error, code: {}, url: {}",
-            self.status, self.url
-        )
-    }
+fn get_key_value_url<S: Into<String>>(
+    client: &AzureAppConfigClient,
+    key: S,
+    label: SearchLabel,
+) -> Result<Url, Exception> {
+    format!(
+        "{host}/{key}?label={label}",
+        host = client.endpoints.get_uri(EndpointUrl::KeyValues),
+        key = key.into(),
+        label = label.to_string(),
+    )
+    .parse::<Url>()
+    .map_err(|e| e.into())
 }
 
 pub(crate) struct Body {
