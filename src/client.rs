@@ -115,6 +115,7 @@ impl AzureAppConfigClient {
         label: SearchLabel<'a>,
     ) -> Result<(), Exception> {
         let url = get_key_value_url(self, key, label)?;
+
         self.send_request(&url, Method::DELETE, Body::empty())
             .await?;
 
@@ -127,6 +128,12 @@ impl AzureAppConfigClient {
         method: Method,
         body: Body,
     ) -> Result<String, Exception> {
+        log::debug!(
+            "Sending {} request to {}",
+            &method.to_string(),
+            &url.to_string()
+        );
+
         let mut req = create_signed_request(
             self.access_key.clone(),
             self.secret.clone(),
@@ -155,6 +162,9 @@ impl AzureAppConfigClient {
         body: Body,
     ) -> Result<T, Exception> {
         let result = self.send_request(url, method, body).await?;
+
+        log::debug!("JSON: {}", result);
+
         Ok(serde_json::from_str::<T>(&result)?)
     }
 

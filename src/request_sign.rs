@@ -53,9 +53,6 @@ pub(crate) async fn create_signed_request<S: Into<String>>(
     let mut request = surf::Request::new(method, url.clone());
     let mut h = request.headers();
 
-    h.insert("Date", utc);
-    h.insert("x-ms-content-sha256", content_hash);
-
     let auth_value = format!(
         "HMAC-SHA256 Credential={}&SignedHeaders={}&Signature={}",
         access_key.into(),
@@ -63,6 +60,18 @@ pub(crate) async fn create_signed_request<S: Into<String>>(
         encoded_signature
     );
 
+    log::debug!(
+        "Request signed with headers\n \
+         Date: {}\n \
+         x-ms-content-sha256: {}\n \
+         Authorization: {}",
+        &utc,
+        &content_hash,
+        &auth_value
+    );
+
+    h.insert("Date", utc);
+    h.insert("x-ms-content-sha256", content_hash);
     h.insert("Authorization", auth_value);
     h.insert("host", url.host().unwrap().to_string());
 

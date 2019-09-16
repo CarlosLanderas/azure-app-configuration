@@ -1,8 +1,11 @@
 use async_std::task;
 use azure_app_configuration::client::AzureAppConfigClient;
 use azure_app_configuration::search_label::SearchLabel;
+use log::LevelFilter;
 
 fn main() {
+    femme::start(LevelFilter::Debug).unwrap();
+
     task::block_on(async {
         let app_config_client = AzureAppConfigClient::new(
             "https://lande-app-configuration.azconfig.io",
@@ -12,7 +15,7 @@ fn main() {
 
         //Create a key value
         let _kv = app_config_client
-            .set_key("EnableHttps", "true" , SearchLabel::All, None, None)
+            .set_key("EnableHttps", "true", SearchLabel::All, None, None)
             .await
             .unwrap();
 
@@ -24,7 +27,13 @@ fn main() {
 
         //Create a key with a label
         let _kv = app_config_client
-            .set_key("EnableProxy", "true" , SearchLabel::For("ApplicationLabel"), None, None)
+            .set_key(
+                "EnableProxy",
+                "true",
+                SearchLabel::For("ApplicationLabel"),
+                None,
+                None,
+            )
             .await
             .unwrap();
 
@@ -33,7 +42,5 @@ fn main() {
             .remove_key_value("EnableProxy", SearchLabel::For("ApplicationLabel"))
             .await
             .unwrap();
-
-
     })
 }

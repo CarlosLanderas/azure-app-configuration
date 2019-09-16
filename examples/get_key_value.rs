@@ -1,8 +1,11 @@
 use async_std::task;
 use azure_app_configuration::client::AzureAppConfigClient;
 use azure_app_configuration::search_label::SearchLabel;
+use log::LevelFilter;
 
 fn main() {
+    femme::start(LevelFilter::Debug).unwrap();
+
     task::block_on(async {
         let app_config_client = AzureAppConfigClient::new(
             "https://lande-app-configuration.azconfig.io",
