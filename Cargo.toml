@@ -1,5 +1,5 @@
 [package]
-name = "rust-azure-app-config"
+name = "azure-app-configuration"
 version = "0.1.0"
 authors = ["clanderas"]
 edition = "2018"
@@ -21,3 +21,6 @@ serde_json = "1.0.40"
 [[example]]
 name = "list-key-values"
 path = "examples/list_key_values.rs"
+[[example]]
+name = "get-key-value"
+path = "examples/get_key_value.rs"

@@ -1,5 +1,6 @@
 use crate::endpoints::{EndpointUrl, Endpoints};
-use crate::model::{KeyValue, KeyValues, Keys, Labels, SearchLabel};
+use crate::model::{KeyValue, KeyValues, Keys, Labels};
+use crate::search_label::SearchLabel;
 use crate::request_sign::create_signed_request;
 use crate::Exception;
 use http::Method;
@@ -46,15 +47,10 @@ impl AzureAppConfigClient {
         label: SearchLabel<'a>,
     ) -> Result<KeyValues, Exception> {
 
-        let target_label = match label {
-            SearchLabel::For(l) => l,
-            SearchLabel::All => "*"
-        };
-
         let url = &format!(
             "{}?label={}",
             self.endpoints.get_uri(EndpointUrl::KeyValues),
-            target_label
+            label.to_string()
         )
         .parse::<Url>()?;
 
@@ -75,7 +71,7 @@ impl AzureAppConfigClient {
 
         k.content_type = match content_type {
             Some(c) => Some(c.into()),
-            None => None
+            None => None,
         };
 
         if let Some(tg) = tags {
@@ -105,21 +101,17 @@ impl AzureAppConfigClient {
             .await?)
     }
 
-    pub async fn get_key_value<S: Into<String>>(
+    pub async fn get_key_value<'a, S: Into<String>>(
         &self,
         key: S,
-        label: Option<S>,
+        label: SearchLabel<'a>,
     ) -> Result<KeyValue, Exception> {
-        let label_content = match label {
-            Some(v) => v.into(),
-            None => String::new(),
-        };
 
         let url = &format!(
             "{host}/{key}?label={label}",
             host = self.endpoints.get_uri(EndpointUrl::KeyValues),
             key = key.into(),
-            label = label_content,
+            label = label.to_string(),
         )
         .parse::<Url>()?;
 

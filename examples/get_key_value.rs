@@ -10,10 +10,10 @@ fn main() {
             "wgf9BDWeh/+Dtq8DmpsJSUpwrdgYLrXG8svE+VyM06w=",
         );
 
-        //List all key values without a label (all key values);
-        let key_values = app_config_client.list_key_values(SearchLabel::All).await;
-        for k in key_values {
-            println!("{:?}", k);
-        }
+        let kv = app_config_client
+            .get_key_value("ConnectionString", SearchLabel::For("ContosoApp"))
+            .await;
+
+        println!("{:?}", kv);
     })
 }

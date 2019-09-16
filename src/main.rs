@@ -1,5 +1,5 @@
 use async_std::task;
-use rust_azure_app_config::client::AzureAppConfigClient;
+use azure_app_configuration::client::AzureAppConfigClient;
 
 use std::collections::HashMap;
 
