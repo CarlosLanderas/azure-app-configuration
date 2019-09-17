@@ -3,6 +3,14 @@ name = "azure-app-configuration"
 version = "0.1.0"
 authors = ["clanderas"]
 edition = "2018"
+license = "Apache-2.0/MIT"
+repository = "https://github.com/CarlosLanderas/azure-app-configuration"
+homepage = "https://github.com/CarlosLanderas/azure-app-configuration"
+documentation = "https://docs.rs/azure-app-configuration"
+description = "Azure App Configuration client for Rust"
+keywords = ["azure", "app-configuration", "cloud", "api-wrapper", "client"]
+categories = ["api-bindings", "config"]
+readme = "README.md"
 
 [dependencies]
 surf = "1.0.2"
@@ -28,6 +36,9 @@ path = "examples/list_key_values.rs"
 [[example]]
 name = "list-labels"
 path = "examples/list_labels.rs"
+[[example]]
+name = "list-keys"
+path = "examples/list_keys.rs"
 [[example]]
 name = "get-key-value"
 path = "examples/get_key_value.rs"

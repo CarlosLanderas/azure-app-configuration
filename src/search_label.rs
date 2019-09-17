@@ -13,3 +13,10 @@ impl<'a> ToString for SearchLabel<'a> {
         }
     }
 }
+
+#[test]
+fn searchlabel_test() {
+    assert_eq!(SearchLabel::All.to_string(), String::new());
+    assert_eq!(SearchLabel::For("Label1").to_string(), "Label1");
+    assert_eq!(SearchLabel::For("Superlabel").to_string(), "Superlabel");
+}

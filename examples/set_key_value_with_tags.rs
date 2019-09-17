@@ -21,7 +21,7 @@ fn main() {
                 "true",
                 SearchLabel::For("PublicWebsite"),
                 Some(tags),
-                None,
+                Some("application/lande"),
             )
             .await;
 

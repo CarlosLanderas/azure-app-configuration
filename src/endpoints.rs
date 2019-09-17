@@ -34,3 +34,20 @@ impl Endpoints {
         e.parse::<Url>().unwrap()
     }
 }
+
+#[test]
+fn endpoints_url_test() {
+    let endpoints = Endpoints::new("http://sample.io");
+    assert_eq!(
+        endpoints.get_uri(EndpointUrl::Keys).to_string(),
+        "http://sample.io/keys"
+    );
+    assert_eq!(
+        endpoints.get_uri(EndpointUrl::KeyValues).to_string(),
+        "http://sample.io/kv"
+    );
+    assert_eq!(
+        endpoints.get_uri(EndpointUrl::Labels).to_string(),
+        "http://sample.io/labels"
+    );
+}

@@ -7,7 +7,7 @@ pub struct Key {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Keys {
-    items: Vec<Key>,
+    pub items: Vec<Key>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -34,7 +34,6 @@ pub struct KeyValue {
     #[serde(skip_serializing)]
     pub label: Option<String>,
     pub value: String,
-    #[serde(skip_serializing)]
     pub content_type: Option<String>,
     #[serde(skip_serializing)]
     pub last_modified: String,

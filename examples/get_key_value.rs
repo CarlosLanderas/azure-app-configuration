@@ -1,10 +1,8 @@
 use async_std::task;
 use azure_app_configuration::client::AzureAppConfigClient;
 use azure_app_configuration::search_label::SearchLabel;
-use log::LevelFilter;
 
 fn main() {
-    femme::start(LevelFilter::Debug).unwrap();
 
     task::block_on(async {
         let app_config_client = AzureAppConfigClient::new(
@@ -13,8 +11,17 @@ fn main() {
             "wgf9BDWeh/+Dtq8DmpsJSUpwrdgYLrXG8svE+VyM06w=",
         );
 
-        let kv = app_config_client
+        //Retrieve a key called ConnectionString for label ConsotoApp
+        let mut kv = app_config_client
             .get_key_value("ConnectionString", SearchLabel::For("ContosoApp"))
+            .await;
+
+        println!("{:?}", kv);
+
+        //Retrieve the key ConnectionString that has not label associated
+
+        kv = app_config_client
+            .get_key_value("ConnectionString", SearchLabel::All)
             .await;
 
         println!("{:?}", kv);
