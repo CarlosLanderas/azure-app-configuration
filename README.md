@@ -18,8 +18,9 @@ Latest version supports:
 
 ## Running samples
 
-You can find some sample code snippets here: [examples](https://github.com/CarlosLanderas/azure-app-configuration/tree/master/examples)
-just replace the configuration with your Azure configuration endpoint, your access_key and secret and execute them by using:
+You can find some sample code snippets here: **[examples](https://github.com/CarlosLanderas/azure-app-configuration/tree/master/examples)**.
+
+Just replace the configuration with your Azure configuration endpoint, your access_key and secret and execute them by using:
 
 `cargo run --example list-key-values`
 
