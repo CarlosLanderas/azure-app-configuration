@@ -70,7 +70,7 @@ pub(crate) async fn create_signed_request<S: Into<String>>(
         &auth_value
     );
 
-    log::debug!("Request body size: {}",  body.len());
+    log::debug!("Request body size: {}", body.len());
 
     h.insert("Date", utc);
     h.insert("x-ms-content-sha256", content_hash);

@@ -307,3 +307,22 @@ impl From<&str> for Body {
         Body::from(value.as_bytes().to_vec())
     }
 }
+
+impl ToString for Body {
+    fn to_string(&self) -> String {
+        String::from_utf8_lossy(&self.contents).to_string()
+    }
+}
+
+#[test]
+fn to_string_trait_should_return_proper_body_string() {
+    let b = Body::from("Body contents");
+    assert_eq!(b.to_string(), "Body contents");
+}
+
+#[test]
+fn body_len_fn_should_return_proper_body_length() {
+    let bytes = "contents".as_bytes();
+    let b = Body::from(bytes.to_vec());
+    assert_eq!(b.len(), 8);
+}
