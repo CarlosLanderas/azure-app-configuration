@@ -276,6 +276,7 @@ fn get_key_value_url<S: Into<String>>(
     .map_err(|e| e.into())
 }
 
+#[derive(Debug, Clone)]
 pub(crate) struct Body {
     contents: Vec<u8>,
 }
@@ -284,8 +285,12 @@ impl Body {
     fn empty() -> Self {
         Body { contents: vec![] }
     }
+
     pub(crate) fn value(&self) -> Vec<u8> {
         self.contents.clone()
+    }
+    pub(crate) fn len(&self) -> usize {
+        self.contents.len()
     }
 }
 
@@ -294,5 +299,11 @@ impl From<Vec<u8>> for Body {
         Body {
             contents: bytes.to_vec(),
         }
+    }
+}
+
+impl From<&str> for Body {
+    fn from(value: &str) -> Self {
+        Body::from(value.as_bytes().to_vec())
     }
 }
