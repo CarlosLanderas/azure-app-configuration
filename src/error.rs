@@ -1,6 +1,5 @@
-use serde::export::fmt::Display;
 use std::error::Error;
-use std::fmt::Formatter;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Clone)]
 pub struct HttpError {
